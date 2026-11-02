@@ -3,7 +3,7 @@
 60秒で何文字打てるかに挑戦する、日本語（ローマ字入力）のタイピングゲームです。
 `shi` / `si`、`tsu` / `tu` のような綴りの揺れや、「っ」「ん」の入力方法の違いにも対応しています。
 
-**公開URL**: _（デプロイ後に追記）_
+**公開URL**: https://japanese-typing-game-pi.vercel.app
 
 <p align="center">
   <img src="docs/screenshots/game.png" alt="プレイ中の画面" width="720">
