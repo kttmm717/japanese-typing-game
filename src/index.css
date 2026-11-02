@@ -2,13 +2,28 @@
   --text: #2b2833;
   --text-sub: #8a8594;
   --bg: #faf9f6;
+  --surface: #ffffff;
+  --border: #e6e3dd;
   --correct: #2e9e5b;
   --miss: #d64545;
   --accent: #e0662f;
+  --accent-text: #ffffff;
 
   font-family: system-ui, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
   color: var(--text);
   background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #ecebef;
+    --text-sub: #9a96a3;
+    --bg: #1b1a1f;
+    --surface: #26252b;
+    --border: #3a3840;
+    --correct: #5cc98a;
+    --miss: #f07272;
+  }
 }
 
 * {
@@ -20,10 +35,97 @@ body {
   min-height: 100vh;
   display: grid;
   place-items: center;
+  background: var(--bg);
 }
 
+main {
+  width: min(640px, 100% - 32px);
+  padding: 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.screen,
 .game {
   text-align: center;
+}
+
+.title {
+  font-size: 2.25rem;
+  margin: 0 0 8px;
+}
+
+.lead {
+  color: var(--text-sub);
+  margin: 0 0 32px;
+}
+
+.hint {
+  color: var(--text-sub);
+  font-size: 0.85rem;
+  margin: 16px 0 0;
+}
+
+.best {
+  margin: 24px 0 0;
+  font-weight: bold;
+}
+
+/* ボタン */
+.primary-button,
+.secondary-button {
+  font: inherit;
+  font-weight: bold;
+  padding: 12px 32px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.primary-button {
+  color: var(--accent-text);
+  background: var(--accent);
+  border: none;
+}
+
+.secondary-button {
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+}
+
+.primary-button:hover,
+.secondary-button:hover {
+  opacity: 0.85;
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ゲーム画面 */
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--text-sub);
+}
+
+.time-bar {
+  height: 6px;
+  margin: 8px 0 40px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.time-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.1s linear;
 }
 
 .word-text {
@@ -34,13 +136,15 @@ body {
 
 .word-kana {
   color: var(--text-sub);
-  margin: 0.5rem 0;
+  margin: 8px 0;
 }
 
 .word-romaji {
   font-family: ui-monospace, Consolas, monospace;
   font-size: 1.5rem;
   letter-spacing: 0.05em;
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .word-romaji .typed {
@@ -49,4 +153,77 @@ body {
 
 .word-romaji .rest {
   color: var(--text-sub);
+}
+
+/* ミスしたときに少し揺らす */
+.word[data-miss='true'] .word-romaji {
+  animation: shake 0.2s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.word[data-miss='true'] .word-romaji .rest {
+  animation: miss-color 0.3s;
+}
+
+@keyframes miss-color {
+  from { color: var(--miss); }
+}
+
+/* 結果画面 */
+.rank {
+  font-size: 5rem;
+  font-weight: bold;
+  line-height: 1;
+  margin: 16px 0 8px;
+}
+
+.rank-S { color: #d4a017; }
+.rank-A { color: var(--accent); }
+
+.score {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.new-best {
+  margin-left: 8px;
+  padding: 2px 10px;
+  font-size: 0.8rem;
+  color: var(--accent-text);
+  background: var(--correct);
+  border-radius: 999px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 32px 0;
+}
+
+.stats dt {
+  font-size: 0.8rem;
+  color: var(--text-sub);
+}
+
+.stats dd {
+  margin: 4px 0 0;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+@media (max-width: 480px) {
+  main {
+    padding: 24px 16px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

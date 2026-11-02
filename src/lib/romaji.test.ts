@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { createTypingState, getRomajiGuide, inputKey, isFinished } from './romaji'
+import { WORDS } from '../data/words'
+import { createTypingState, getRomajiGuide, inputKey, isFinished, toChunks } from './romaji'
 
 // 文字列をすべて入力して、最後まで打ち切れたかを返す
 function typeAll(kana: string, keys: string): boolean {
@@ -53,5 +54,15 @@ describe('ローマ字入力の判定', () => {
     expect(getRomajiGuide(state)).toEqual({ typed: '', rest: 'shinkansenn' })
     for (const key of 'si') state = inputKey(state, key).state
     expect(getRomajiGuide(state)).toEqual({ typed: 'si', rest: 'nkansenn' })
+  })
+})
+
+describe('お題の単語', () => {
+  it('すべての単語がローマ字に変換できる（未対応のかなが含まれていない）', () => {
+    for (const word of WORDS) {
+      for (const chunk of toChunks(word.kana)) {
+        expect(chunk.candidates.every((c) => /^[a-z-]+$/.test(c)), `${word.text}: ${chunk.kana}`).toBe(true)
+      }
+    }
   })
 })
