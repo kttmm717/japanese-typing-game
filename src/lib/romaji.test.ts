@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { WORDS } from '../data/words'
-import { createTypingState, getRomajiGuide, inputKey, isFinished, toChunks } from './romaji'
+import {
+  createTypingState,
+  getKanaProgress,
+  getRomajiGuide,
+  inputKey,
+  isFinished,
+  toChunks,
+} from './romaji'
 
 // 文字列をすべて入力して、最後まで打ち切れたかを返す
 function typeAll(kana: string, keys: string): boolean {
@@ -54,6 +61,15 @@ describe('ローマ字入力の判定', () => {
     expect(getRomajiGuide(state)).toEqual({ typed: '', rest: 'shinkansenn' })
     for (const key of 'si') state = inputKey(state, key).state
     expect(getRomajiGuide(state)).toEqual({ typed: 'si', rest: 'nkansenn' })
+  })
+
+  it('かなの進み具合', () => {
+    let state = createTypingState('まっちゃ')
+    for (const key of 'mac') state = inputKey(state, key).state
+    // 「っちゃ」は1チャンクなので、打ち終わるまで「ま」だけが入力済み
+    expect(getKanaProgress(state)).toEqual({ typed: 'ま', rest: 'っちゃ' })
+    for (const key of 'cha') state = inputKey(state, key).state
+    expect(getKanaProgress(state)).toEqual({ typed: 'まっちゃ', rest: '' })
   })
 })
 

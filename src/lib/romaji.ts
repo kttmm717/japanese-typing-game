@@ -171,3 +171,12 @@ export function getRomajiGuide(state: TypingState): { typed: string; rest: strin
     .join('')
   return { typed: state.typed, rest: currentRest + following }
 }
+
+// 画面表示用: 入力済みのかなと、残りのかな（チャンク単位で進む）
+export function getKanaProgress(state: TypingState): { typed: string; rest: string } {
+  const kanaOf = (chunks: Chunk[]) => chunks.map((c) => c.kana).join('')
+  return {
+    typed: kanaOf(state.chunks.slice(0, state.index)),
+    rest: kanaOf(state.chunks.slice(state.index)),
+  }
+}

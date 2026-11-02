@@ -2,6 +2,7 @@ import { useEffect, useReducer, useRef, useState } from 'react'
 import { WORDS, type Word } from '../data/words'
 import {
   createTypingState,
+  getKanaProgress,
   getRomajiGuide,
   inputKey,
   isFinished,
@@ -10,6 +11,8 @@ import {
 import type { GameResult } from '../lib/score'
 
 const TIME_LIMIT_SECONDS = 60
+// 残り時間がこの秒数以下になったら、タイマーを目立たせる
+const WARNING_SECONDS = 10
 
 type Props = {
   onFinish: (result: GameResult) => void
@@ -57,10 +60,11 @@ function reducer(state: GameState, key: string): GameState {
 
   const correctKeys = state.correctKeys + 1
   if (isFinished(typing)) {
-    // 1単語打ち終わったら次の単語へ（最後まで行ったらシャッフルし直す）
-    const isLast = state.wordIndex + 1 >= state.words.length
-    const words = isLast ? shuffle(WORDS) : state.words
-    const wordIndex = isLast ? 0 : state.wordIndex + 1
+    // 1単語打ち終わったら次の単語へ。
+    // 「次のお題」を常に表示できるよう、残りが少なくなったらシャッフルした単語を後ろに足す
+    const wordIndex = state.wordIndex + 1
+    const words =
+      wordIndex + 1 >= state.words.length ? [...state.words, ...shuffle(WORDS)] : state.words
     return {
       ...state,
       words,
@@ -77,7 +81,9 @@ export function GameScreen({ onFinish, onQuit }: Props) {
   const [game, dispatch] = useReducer(reducer, undefined, initGame)
   const [timeLeft, setTimeLeft] = useState(TIME_LIMIT_SECONDS)
   const word = game.words[game.wordIndex]
-  const guide = getRomajiGuide(game.typing)
+  const nextWord = game.words[game.wordIndex + 1]
+  const romaji = getRomajiGuide(game.typing)
+  const kana = getKanaProgress(game.typing)
 
   // タイマー終了時に最新のスコアを渡せるよう、ref にも持っておく
   const gameRef = useRef(game)
@@ -121,12 +127,26 @@ export function GameScreen({ onFinish, onQuit }: Props) {
   return (
     <section className="game">
       <div className="game-header">
-        <span>残り {timeLeft} 秒</span>
-        <span>
-          {game.wordCount} 単語 / ミス {game.missCount}
-        </span>
+        <div className={`timer${timeLeft <= WARNING_SECONDS ? ' is-warning' : ''}`}>
+          <span className="timer-value">{timeLeft}</span>
+          <span className="timer-unit">秒</span>
+        </div>
+        <dl className="game-stats">
+          <div>
+            <dt>単語</dt>
+            <dd>{game.wordCount}</dd>
+          </div>
+          <div>
+            <dt>打鍵</dt>
+            <dd>{game.correctKeys}</dd>
+          </div>
+          <div>
+            <dt>ミス</dt>
+            <dd>{game.missCount}</dd>
+          </div>
+        </dl>
       </div>
-      <div className="time-bar">
+      <div className={`time-bar${timeLeft <= WARNING_SECONDS ? ' is-warning' : ''}`}>
         <div
           className="time-bar-fill"
           style={{ width: `${(timeLeft / TIME_LIMIT_SECONDS) * 100}%` }}
@@ -135,14 +155,25 @@ export function GameScreen({ onFinish, onQuit }: Props) {
 
       <div className="word" key={game.missFlash} data-miss={game.missFlash > 0}>
         <p className="word-text">{word.text}</p>
-        <p className="word-kana">{word.kana}</p>
+        <p className="word-kana">
+          <span className="typed">{kana.typed}</span>
+          {kana.rest}
+        </p>
         <p className="word-romaji">
-          <span className="typed">{guide.typed}</span>
-          <span className="rest">{guide.rest}</span>
+          <span className="typed">{romaji.typed}</span>
+          <span className="cursor">{romaji.rest.slice(0, 1)}</span>
+          <span className="rest">{romaji.rest.slice(1)}</span>
         </p>
       </div>
 
-      <p className="hint">Esc でやめる</p>
+      <p className="next-word">
+        <span className="next-label">次</span>
+        {nextWord.text}
+      </p>
+
+      <p className="hint">
+        <kbd>Esc</kbd> でやめる
+      </p>
     </section>
   )
 }

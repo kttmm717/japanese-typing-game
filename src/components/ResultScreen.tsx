@@ -32,13 +32,20 @@ export function ResultScreen({ result, onRetry, onBack }: Props) {
   }, [onRetry, onBack])
 
   return (
-    <section className="screen">
-      <h2>結果</h2>
-      <p className={`rank rank-${score.rank}`}>{score.rank}</p>
+    <section className="screen result">
+      <p className="eyebrow">結果</p>
+      <div className={`rank-stamp rank-${score.rank}`} aria-label={`ランク ${score.rank}`}>
+        {score.rank}
+      </div>
       <p className="score">
-        スコア {score.score}
-        {isNewBest && <span className="new-best">ベスト更新！</span>}
+        <span className="score-label">スコア</span>
+        <span className="score-value">{score.score}</span>
       </p>
+      {isNewBest ? (
+        <p className="best-note is-new">ベストスコア更新！</p>
+      ) : (
+        prevBest > 0 && <p className="best-note">ベストスコア {prevBest}</p>
+      )}
 
       <dl className="stats">
         <div>
@@ -51,7 +58,10 @@ export function ResultScreen({ result, onRetry, onBack }: Props) {
         </div>
         <div>
           <dt>正確率</dt>
-          <dd>{(score.accuracy * 100).toFixed(1)}%</dd>
+          <dd>
+            {(score.accuracy * 100).toFixed(1)}
+            <small>%</small>
+          </dd>
         </div>
         <div>
           <dt>単語数</dt>
@@ -67,7 +77,9 @@ export function ResultScreen({ result, onRetry, onBack }: Props) {
           タイトルへ
         </button>
       </div>
-      <p className="hint">スペースでもう一度 / Esc でタイトルへ</p>
+      <p className="hint">
+        <kbd>Space</kbd> でもう一度 / <kbd>Esc</kbd> でタイトルへ
+      </p>
     </section>
   )
 }
